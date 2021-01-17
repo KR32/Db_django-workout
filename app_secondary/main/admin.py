@@ -5,6 +5,6 @@ from django.contrib import admin
 from .models import testout
 
 class testoutAdmin(admin.ModelAdmin):
-    list_display = ('name','age')
+    list_display = ('name','age', 'phone_number', 'id')
 
 admin.site.register(testout, testoutAdmin)
