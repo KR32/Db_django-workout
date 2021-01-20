@@ -48,9 +48,32 @@ class CountryInformationAdmin(admin.ModelAdmin):
         # 'language_id'
     )
 
+class SectionTemplateAdmin(admin.ModelAdmin):
+    list_display = (
+        'section_name',
+    )
+    formfield_overrides = {
+        models.TextField: {
+            'widget':TinyMCE()
+        },
+    }
+    # exclude = ('section_id',)
     
+class JobDescTemplateAdmin(admin.ModelAdmin):
+    list_display = (    
+        'description_title',
+    )
+    formfield_overrides = {
+        models.TextField: {
+            'widget': TinyMCE()
+        },
+    }
+    # exclude = ('job_desc_id',)
+
 
 admin.site.register(testout, MainAdmin)
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(Currency, CurrencyAdmin)
 admin.site.register(country_information, CountryInformationAdmin)
+admin.site.register(section_template, SectionTemplateAdmin)
+admin.site.register(JobDescriptionTemplate, JobDescTemplateAdmin)
