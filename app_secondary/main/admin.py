@@ -22,6 +22,7 @@ class testoutAdmin(admin.ModelAdmin):
 @admin.register(Language)
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ("language", "comments")
+    search_fields = ('language','comments')
 
 
 @admin.register(Currency)
@@ -53,6 +54,7 @@ class CountryInformationAdmin(admin.ModelAdmin):
         # 'currency_id',
         # 'language_id'
     )
+    search_fields = list_display
 
 
 @admin.register(section_template)
@@ -62,6 +64,7 @@ class SectionTemplateAdmin(admin.ModelAdmin):
         models.TextField: {"widget": TinyMCE()},
     }
     # exclude = ('section_id',)
+    search_fields = list_display
 
 
 @admin.register(JobDescriptionTemplate)
@@ -71,6 +74,7 @@ class JobDescTemplateAdmin(admin.ModelAdmin):
         models.TextField: {"widget": TinyMCE()},
     }
     # exclude = ('job_desc_id',)
+    search_fields = list_display
 
 
 @admin.register(PqrDetail)
@@ -86,6 +90,7 @@ class PQRDetailTemplateAdmin(admin.ModelAdmin):
         "check_equivalence",
         "comments",
     )
+    search_fields = list_display
 
 
 @admin.register(PqrHeader)
@@ -99,6 +104,7 @@ class PQRHeaderAdmin(admin.ModelAdmin):
         "description",
         "comments",
     )
+    search_fields = list_display
 
 
 @admin.register(IssueAuthority)
@@ -112,7 +118,7 @@ class IssueAuthorityAdmin(admin.ModelAdmin):
         "licensing",
         "qualification",
     )
-
+    search_fields = list_display
 
 @admin.register(Qualification)
 class QualificationAdmin(admin.ModelAdmin):
@@ -127,3 +133,4 @@ class QualificationAdmin(admin.ModelAdmin):
         "course_duration_reqd",
         "display_order",
     )
+    search_fields = list_display
