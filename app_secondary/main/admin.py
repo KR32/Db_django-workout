@@ -3,6 +3,7 @@ from tinymce.widgets import TinyMCE
 # Register your models here.
 from .models import *
 
+admin.site.site_header = 'OHR Administration.'
 
 
 class MainAdmin(admin.ModelAdmin):
