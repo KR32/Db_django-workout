@@ -38,8 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main',
-    'tinymce'
+    'tinymce', 
+    'smart_selects',
 ]
+
+JQUERY_URL = False
+USE_DJANGO_JQUERY = False
 
 
 TINYMCE_DEFAULT_CONFIG = {

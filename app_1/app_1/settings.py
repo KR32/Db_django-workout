@@ -37,8 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main'
+    'main',
+    'smart_selects'
 ]
+
+JQUERY_URL = False
+
+USE_DJANGO_JQUERY = False
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
