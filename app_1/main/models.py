@@ -1,7 +1,8 @@
 from django.contrib.postgres.fields.jsonb import JSONField
 from django.db import models
+from django.utils import tree
 # Create your models here.
-
+from smart_selects.db_fields import ChainedForeignKey
 
 class testout(models.Model):
     id = models.AutoField(primary_key=True)
@@ -60,14 +61,14 @@ class section_template(models.Model):
 
 class JobDescriptionTemplate(models.Model):
     job_desc_id = models.AutoField (primary_key=True)
-    description_title = models.CharField(max_length=255, null=False)
-    # organisation_description = models.Text, null=False)
+    description_title = models.CharField(max_length=255, null=True)
+    organisation_description = models.CharField(max_length=255, null=True)
     organisation_job_description = models.TextField(null=True)
-    # qualifications_required = models.Text, null=False)
-    # skills_required = models.Text, null=False)
-    # essential_information = models.Text, null=False)
-    # desired_information = models.Text, null=False)
-    comments = models.TextField(null=True) 
+    qualifications_required = models.CharField(max_length=255, null=True)
+    skills_required = models.CharField(max_length=255, null=True)
+    essential_information = models.CharField(max_length=255, null=True)
+    desired_information = models.CharField(max_length=255, null=True)
+    comments = models.CharField(max_length=255, null=True)
 
     def __str__(self) -> str:
         return self.description_title
@@ -100,7 +101,7 @@ class IssueAuthority(models.Model):
 
 class Qualification(models.Model):
     qualification_id = models.AutoField(primary_key=True)
-    # qualification_classification_id = models.ForeignKey('qualification_classification.qualification_classification_id'),nullable=False)
+    qualification_classification_id = models.ForeignKey('QualificationClassification', on_delete=models.CASCADE, null=True)
     country_id = models.ForeignKey('country_information', on_delete=models.CASCADE)
     qualification = models.CharField(max_length=128, null=True)
     qualification_level = models.IntegerField(null=True)
@@ -116,24 +117,44 @@ class Qualification(models.Model):
     equivalent_qualification = models.BooleanField(default=False, null=True)
 
 
+class CandidateType(models.Model):
+    candidate_type_id = models.AutoField(primary_key=True)
+    candidate_type = models.CharField(max_length=128, null=True)
+    comments = models.CharField(max_length=255, null=True)
 
+    def __str__(self):
+        return self.candidate_type
 
+class CandidateLevel(models.Model):
+    level_id = models.AutoField(primary_key=True)
+    candidate_type_id = models.ForeignKey('CandidateType', on_delete=models.CASCADE, null=True)
+    country_id = models.ForeignKey('country_information', on_delete=models.CASCADE, null=True)
+    issue_authority_id = models.ForeignKey('IssueAuthority', on_delete=models.CASCADE, null=True)
+    candidate_level = models.CharField(max_length=128, null=True)
+    description = models.CharField(max_length=128, null=True)
+    seniority = models.IntegerField(null=True)
+    comments = models.CharField(max_length=128, null=True)
 
-# class QualificationClassification(models.Model):
-#     qualification_classification_id = models.(Integer, primary_key=True)
-#     candidate_type_id = models.(ForeignKey(
-#         'candidate_types.candidate_type_id'), nullable=False)
-#     level_id = models.(ForeignKey('candidate_levels.level_id'), nullable=True)
-#     qualification_classification_ = models.(
-#         "qualification_classification", String(100), nullable=False)
-#     sort_level = models.(Integer, nullable=False)
-#     description = models.(String(255))
+    # candidate_type = relationship('CandidateType')
+    # country = relationship('CountryInfo')
+    # issue_authority = relationship('IssueAuthority')
 
-#     # candidate_type = relationship('CandidateType')
-#     # level = relationship('CandidateLevel')
+    def __repr__(self):
+        return self.candidate_level
 
-#     def __repr__(self):
-#         return self.qualification_classification_
+class QualificationClassification(models.Model):
+    qualification_classification_id = models.AutoField(primary_key=True)
+    candidate_type_id = models.ForeignKey('CandidateType',on_delete=models.CASCADE, null=True)
+    level_id = models.ForeignKey('CandidateLevel',on_delete=models.CASCADE, null=True)
+    qualification_classification = models.CharField(max_length=128, null=True)
+    sort_level = models.IntegerField(null=True) 
+    description = models.CharField(max_length=128, null=True)
+
+    # candidate_type = relationship('CandidateType')
+    # level = relationship('CandidateLevel')
+
+    def __repr__(self):
+        return self.qualification_classification
 
 
 
@@ -168,14 +189,14 @@ class PqrHeader(models.Model):
 
 class PqrDetail(models.Model):
     pqr_detail_id = models.AutoField(primary_key=True)
-    pqr_header_id = models.ForeignKey('PqrHeader',on_delete=models.CASCADE, null=False)
-    # candidate_type_id = models.(ForeignKey('candidate_types.candidate_type_id'), null=False)
-    # level_id = models.(ForeignKey('candidate_levels.level_id'), null=False)
-    # qual_country_id = models.(ForeignKey('country_info.country_id'), null=False)
-    # qualification_classification_id = models.(ForeignKey('qualification_classification.qualification_classification_id'))
-    # qualification_id = models.(ForeignKey('qualifications.qualification_id'))
-    issue_authority_id = models.ForeignKey('IssueAuthority', on_delete=models.CASCADE)
-    # dependent_pqr_detail_id = models.(ForeignKey('pqr_detail.pqr_detail_id'))
+    pqr_header_id = models.ForeignKey('PqrHeader',on_delete=models.CASCADE, null=True)
+    candidate_type_id = models.ForeignKey('CandidateType', on_delete=models.CASCADE, null=True)
+    level_id = models.ForeignKey('CandidateLevel', on_delete=models.CASCADE, null=True)
+    qual_country_id = models.ForeignKey('country_information', on_delete=models.CASCADE, null=True)
+    qualification_classification_id = models.ForeignKey('QualificationClassification', on_delete=models.CASCADE, null=True)
+    qualification_id = models.ForeignKey('Qualification', on_delete=models.CASCADE, null=True)
+    issue_authority_id = models.ForeignKey('IssueAuthority', on_delete=models.CASCADE, null=True)
+    dependent_pqr_detail_id = models.ForeignKey('PqrDetail', on_delete=models.CASCADE, null=True)
     surgical = models.BooleanField(default=False, null=True)
     min_years_exp = models.IntegerField(null=True)
     min_years_exp_for_nationals = models.IntegerField(null=True)
@@ -185,3 +206,29 @@ class PqrDetail(models.Model):
     check_equivalence = models.BooleanField(default=False, null=True)
     description = models.CharField(null=True, max_length=255)
     comments = models.CharField(null=True, max_length=255)
+
+
+
+
+
+class Continent(models.Model):
+    name = models.CharField(max_length=128)
+
+class Country(models.Model):
+    continent = models.ForeignKey('Continent', on_delete=models.CASCADE)
+    name = models.CharField(max_length=128)
+
+class Location(models.Model):
+    continent = models.ForeignKey('Continent', on_delete=models.CASCADE) 
+    country = ChainedForeignKey(
+        Country,
+        chained_field="continent",
+        chained_model_field="continent",
+        show_all=False,
+        auto_choose=True,
+        sort=True
+        )
+    
+    # area = 
+    city =  models.CharField(max_length=128)
+    street =  models.CharField(max_length=128)
