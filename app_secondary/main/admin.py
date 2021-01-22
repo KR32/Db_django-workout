@@ -82,6 +82,7 @@ class PQRDetailTemplateAdmin(admin.ModelAdmin):
     list_display = (
         "description",
         "surgical",
+        "dependent_pqr_detail_id",
         "min_years_exp",
         "min_years_exp_for_nationals",
         "specialist_registration_held",
@@ -134,3 +135,33 @@ class QualificationAdmin(admin.ModelAdmin):
         "display_order",
     )
     search_fields = list_display
+
+
+
+@admin.register(CandidateType)
+class CandidateTypeAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(CandidateLevel)
+class CandidateLevelAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(QualificationClassification)
+class QualificationClassificationAdmin(admin.ModelAdmin):
+    pass
+
+
+
+
+
+@admin.register(Continent)
+class ContinentAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Country)
+class CountryAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    pass
