@@ -2,7 +2,7 @@ from django.contrib.postgres.fields.jsonb import JSONField
 from django.db import models
 from django.utils import tree
 # Create your models here.
-from smart_selects.db_fields import ChainedForeignKey
+from smart_selects.db_fields import ChainedForeignKey, GroupedForeignKey
 
 class testout(models.Model):
     id = models.AutoField(primary_key=True)
@@ -252,7 +252,16 @@ class PqrDetail(models.Model):
         sort=True,
         null=True
         )
-    dependent_pqr_detail_id = models.ForeignKey('PqrDetail', on_delete=models.CASCADE, blank=True, null=True)
+    dependent_pqr_detail_id = ChainedForeignKey(
+        "main.PqrDetail",
+        related_name = 'pqr_header_new',
+        chained_field="pqr_header_id",
+        chained_model_field="pqr_header_id",
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        null=True
+        )
     surgical = models.BooleanField(default=False, null=True)
     min_years_exp = models.IntegerField(null=True)
     min_years_exp_for_nationals = models.IntegerField(null=True)
@@ -264,8 +273,8 @@ class PqrDetail(models.Model):
     comments = models.CharField(null=True, max_length=255)
 
     def __str__(self) -> str:
-        return self.pqr_header_id.pqr_name
-
+        # return self.pqr_header_id.pqr_name
+        return '{}/{}'.format(self.description, self.pqr_detail_id)
 
 
 
