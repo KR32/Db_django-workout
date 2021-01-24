@@ -80,6 +80,7 @@ class JobDescTemplateAdmin(admin.ModelAdmin):
 @admin.register(PqrDetail)
 class PQRDetailTemplateAdmin(admin.ModelAdmin):
     list_display = (
+        "pqr_header_id",
         "description",
         "surgical",
         "dependent_pqr_detail_id",
