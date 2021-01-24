@@ -79,7 +79,7 @@ class JobDescriptionTemplate(models.Model):
 class IssueAuthority(models.Model):
     issue_authority_id = models.AutoField(primary_key=True)
     issue_country_id = models.ForeignKey('country_information', null=True,on_delete=models.CASCADE)
-    # issue_authority_candidate_type_id = models.ForeignKey('issue_authority_candidate_type.id', null=True)
+    issue_authority_candidate_type_id = models.ForeignKey('IssueAuthorityCandidateType',on_delete=models.CASCADE, null=True)
     authority_name = models.CharField(max_length=255, null=True)
     acronym = models.CharField(max_length=255, null=True)
     address = models.CharField(max_length=255, null=True)
@@ -96,6 +96,15 @@ class IssueAuthority(models.Model):
 
     # def __repr__(self):
     #     return "{}/{}/{}".format(self.issue_authority_id, self.issue_country, self.authority_name)
+
+
+class IssueAuthorityCandidateType(models.Model):
+    id = models.AutoField(primary_key=True)
+    issue_authority_id = models.ForeignKey('IssueAuthority', on_delete=models.CASCADE, null=True)
+    candidate_type_id = models.ForeignKey('CandidateType', on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return '{}'.format(self.candidate_type_id)
 
 
 
@@ -206,7 +215,7 @@ class PqrDetail(models.Model):
         CandidateLevel, 
         related_name = 'candidate_level_new',
         chained_field="candidate_type_id",
-        chained_model_field="country_id",
+        chained_model_field="candidate_type_id",
         show_all=False,
         auto_choose=True,
         sort=True,
@@ -216,7 +225,7 @@ class PqrDetail(models.Model):
     qualification_classification_id = ChainedForeignKey(
         QualificationClassification,
         related_name = 'qualification_classification_new',
-        chained_field="qual_country_id",
+        chained_field="candidate_type_id",
         chained_model_field="candidate_type_id",
         show_all=False,
         auto_choose=True,
@@ -236,7 +245,7 @@ class PqrDetail(models.Model):
     issue_authority_id = ChainedForeignKey(
         IssueAuthority,
         related_name = 'issue_authority_new',
-        chained_field="qualification_id",
+        chained_field="qual_country_id",
         chained_model_field="issue_country_id",
         show_all=False,
         auto_choose=True,
@@ -254,6 +263,8 @@ class PqrDetail(models.Model):
     description = models.CharField(null=True, max_length=255)
     comments = models.CharField(null=True, max_length=255)
 
+    def __str__(self) -> str:
+        return self.pqr_header_id.pqr_name
 
 
 
