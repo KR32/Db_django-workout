@@ -112,6 +112,7 @@ class PQRHeaderAdmin(admin.ModelAdmin):
 class IssueAuthorityAdmin(admin.ModelAdmin):
     list_display = (
         "authority_name",
+        "issue_country_id",
         "acronym",
         "address",
         "website",
@@ -144,7 +145,15 @@ class CandidateTypeAdmin(admin.ModelAdmin):
 
 @admin.register(CandidateLevel)
 class CandidateLevelAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        "level_id",
+        "candidate_type_id",
+        "country_id",
+        "issue_authority_id",
+        "candidate_level",
+        "description",
+        "seniority"
+    )
 
 @admin.register(QualificationClassification)
 class QualificationClassificationAdmin(admin.ModelAdmin):
