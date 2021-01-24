@@ -161,7 +161,9 @@ class QualificationClassificationAdmin(admin.ModelAdmin):
 
 
 
-
+@admin.register(IssueAuthorityCandidateType)
+class IssueAuthorityCandidateTypeAdmin(admin.ModelAdmin):
+    pass
 
 @admin.register(Continent)
 class ContinentAdmin(admin.ModelAdmin):
