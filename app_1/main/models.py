@@ -78,7 +78,7 @@ class JobDescriptionTemplate(models.Model):
 
 class IssueAuthority(models.Model):
     issue_authority_id = models.AutoField(primary_key=True)
-    issue_country_id = models.ForeignKey('country_information', null=False,on_delete=models.CASCADE)
+    issue_country_id = models.ForeignKey('country_information', null=True,on_delete=models.CASCADE)
     # issue_authority_candidate_type_id = models.ForeignKey('issue_authority_candidate_type.id', null=True)
     authority_name = models.CharField(max_length=255, null=True)
     acronym = models.CharField(max_length=255, null=True)
@@ -103,6 +103,7 @@ class Qualification(models.Model):
     qualification_id = models.AutoField(primary_key=True)
     qualification_classification_id = models.ForeignKey('QualificationClassification', on_delete=models.CASCADE, null=True)
     country_id = models.ForeignKey('country_information', on_delete=models.CASCADE)
+    candidate_type_id = models.ForeignKey('CandidateType',on_delete=models.CASCADE, null=True)
     qualification = models.CharField(max_length=128, null=True)
     qualification_level = models.IntegerField(null=True)
     description = models.CharField(max_length=255, null=True)
@@ -160,8 +161,18 @@ class QualificationClassification(models.Model):
 
 class PqrHeader(models.Model):
     pqr_header_id = models.AutoField(primary_key=True)
-    country_id = models.ForeignKey('country_information', on_delete=models.CASCADE)
-    issue_authority_id = models.ForeignKey('IssueAuthority', on_delete=models.CASCADE)
+    country_id = models.ForeignKey('country_information' ,on_delete=models.CASCADE)
+    # issue_authority_id = models.ForeignKey('IssueAuthority', on_delete=models.CASCADE)
+    issue_authority_id = ChainedForeignKey(
+        IssueAuthority,
+        related_name = 'new_country',
+        chained_field="country_id",
+        chained_model_field="issue_country_id",
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        null=True
+        )
     pqr_name = models.CharField(null=True, max_length=128)
     issue_date = models.DateField(null=True)
     version_no = models.IntegerField(null=True)
@@ -190,13 +201,49 @@ class PqrHeader(models.Model):
 class PqrDetail(models.Model):
     pqr_detail_id = models.AutoField(primary_key=True)
     pqr_header_id = models.ForeignKey('PqrHeader',on_delete=models.CASCADE, null=True)
-    candidate_type_id = models.ForeignKey('CandidateType', on_delete=models.CASCADE, null=True)
-    level_id = models.ForeignKey('CandidateLevel', on_delete=models.CASCADE, null=True)
-    qual_country_id = models.ForeignKey('country_information', on_delete=models.CASCADE, null=True)
-    qualification_classification_id = models.ForeignKey('QualificationClassification', on_delete=models.CASCADE, null=True)
-    qualification_id = models.ForeignKey('Qualification', on_delete=models.CASCADE, null=True)
-    issue_authority_id = models.ForeignKey('IssueAuthority', on_delete=models.CASCADE, null=True)
-    dependent_pqr_detail_id = models.ForeignKey('PqrDetail', on_delete=models.CASCADE, null=True)
+    candidate_type_id = models.ForeignKey('CandidateType', on_delete=models.CASCADE, null=True, related_name='candidate_type_new')
+    level_id = ChainedForeignKey(
+        CandidateLevel, 
+        related_name = 'candidate_level_new',
+        chained_field="candidate_type_id",
+        chained_model_field="country_id",
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        null=True
+        )
+    qual_country_id = models.ForeignKey('country_information', on_delete=models.CASCADE, related_name='qualification_country_identification', null=True)
+    qualification_classification_id = ChainedForeignKey(
+        QualificationClassification,
+        related_name = 'qualification_classification_new',
+        chained_field="qual_country_id",
+        chained_model_field="candidate_type_id",
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        null=True
+        )
+    qualification_id = ChainedForeignKey(
+        Qualification,
+        related_name = 'qualification_new',
+        chained_field="qualification_classification_id",
+        chained_model_field="qualification_id",
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        null=True
+        )
+    issue_authority_id = ChainedForeignKey(
+        IssueAuthority,
+        related_name = 'issue_authority_new',
+        chained_field="qualification_id",
+        chained_model_field="issue_country_id",
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        null=True
+        )
+    dependent_pqr_detail_id = models.ForeignKey('PqrDetail', on_delete=models.CASCADE, blank=True, null=True)
     surgical = models.BooleanField(default=False, null=True)
     min_years_exp = models.IntegerField(null=True)
     min_years_exp_for_nationals = models.IntegerField(null=True)
