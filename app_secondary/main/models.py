@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import tree
 # Create your models here.
 from smart_selects.db_fields import ChainedForeignKey, GroupedForeignKey
+from django.contrib.postgres.fields import ArrayField
 
 class testout(models.Model):
     id = models.AutoField(primary_key=True)
@@ -11,10 +12,15 @@ class testout(models.Model):
     phone_number = models.CharField(max_length=12, null=True)
     notes = models.TextField(null=True)
     items =models.JSONField(default=dict) 
-        
+    board = ArrayField(
+           ArrayField(
+               models.CharField(max_length=10, blank=True),
+               size=8,
+           ),
+           size=8,
+       )        
     def __str__(self) -> str:
         return self.name
-
 class Language(models.Model):
     language_id = models.AutoField(primary_key=True)
     language = models.CharField(max_length=128, null=True)
@@ -107,6 +113,20 @@ class IssueAuthorityCandidateType(models.Model):
         return '{}'.format(self.candidate_type_id)
 
 
+class QualificationClassification(models.Model):
+    qualification_classification_id = models.AutoField(primary_key=True)
+    candidate_type_id = models.ForeignKey('CandidateType',on_delete=models.CASCADE, null=True)
+    level_id = models.ForeignKey('CandidateLevel',on_delete=models.CASCADE, null=True)
+    qualification_classification = models.CharField(max_length=128, null=True)
+    sort_level = models.IntegerField(null=True) 
+    description = models.CharField(max_length=128, null=True)
+
+    # candidate_type = relationship('CandidateType')
+    # level = relationship('CandidateLevel')
+
+    def __str__(self):
+        return '{}/{}'.format(self.qualification_classification,self.sort_level) 
+
 
 class Qualification(models.Model):
     qualification_id = models.AutoField(primary_key=True)
@@ -114,7 +134,17 @@ class Qualification(models.Model):
     country_id = models.ForeignKey('country_information', on_delete=models.CASCADE)
     candidate_type_id = models.ForeignKey('CandidateType',on_delete=models.CASCADE, null=True)
     qualification = models.CharField(max_length=128, null=True)
-    qualification_level = models.IntegerField(null=True)
+    # qualification_level = models.IntegerField(null=True)
+    qualification_level = ChainedForeignKey(
+        QualificationClassification,
+        related_name = 'qualification_level_new',
+        chained_field="qualification_classification_id",
+        chained_model_field="qualification_classification_id",
+        show_all=False,
+        auto_choose=True,
+        sort=True,
+        null=True
+        )
     description = models.CharField(max_length=255, null=True)
     acronym = models.CharField(max_length=128, null=True)
     english_translation = models.CharField(max_length=128, null=True)
@@ -152,20 +182,6 @@ class CandidateLevel(models.Model):
 
     def __str__(self):
         return '{}/{}'.format(self.candidate_level,self.country_id)
-
-class QualificationClassification(models.Model):
-    qualification_classification_id = models.AutoField(primary_key=True)
-    candidate_type_id = models.ForeignKey('CandidateType',on_delete=models.CASCADE, null=True)
-    level_id = models.ForeignKey('CandidateLevel',on_delete=models.CASCADE, null=True)
-    qualification_classification = models.CharField(max_length=128, null=True)
-    sort_level = models.IntegerField(null=True) 
-    description = models.CharField(max_length=128, null=True)
-
-    # candidate_type = relationship('CandidateType')
-    # level = relationship('CandidateLevel')
-
-    def __str__(self):
-        return self.qualification_classification
 
 
 
