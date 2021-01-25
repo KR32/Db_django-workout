@@ -93,7 +93,8 @@ class PQRDetailTemplateAdmin(admin.ModelAdmin):
         "comments",
     )
     search_fields = list_display
-
+    def has_add_permission(self, request): 
+        return True
 
 @admin.register(PqrHeader)
 class PQRHeaderAdmin(admin.ModelAdmin):
@@ -125,6 +126,7 @@ class IssueAuthorityAdmin(admin.ModelAdmin):
 
 @admin.register(Qualification)
 class QualificationAdmin(admin.ModelAdmin):
+
     list_display = (
         "qualification",
         "qualification_level",
@@ -137,6 +139,14 @@ class QualificationAdmin(admin.ModelAdmin):
         "display_order",
     )
     search_fields = list_display
+
+    # def get_form(self, request, obj=None, **kwargs):
+    #    form = super(QualificationAdmin, self).get_form(request, obj, **kwargs)
+    #    field = form.base_fields['country_id']
+    #    field.widget.can_add_related = False
+    #    field.widget.can_change_related = False
+    #    field.widget.can_delete_related = False
+    #    return form
 
 
 
